@@ -1,6 +1,0 @@
-[submodule "ext/X-Restormer"]
-	path = ext/X-Restormer
-	url = https://github.com/Andrew0613/X-Restormer.git
-[submodule "ext/Restormer"]
-	path = ext/Restormer
-	url = https://github.com/swz30/Restormer.git
