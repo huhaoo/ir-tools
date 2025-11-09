@@ -1,6 +1,6 @@
 name: xrestormer
 model_type: XRestormerModel
-scale: 4
+scale: 1
 num_gpu: 1
 manual_seed: 123
 padding_size: 16
@@ -8,7 +8,7 @@ padding_size: 16
 # dataset and data loader settings
 datasets:
   test_1:
-    name: test
+    name: .
     type: SingleImageDataset
     dataroot_lq: /root/autodl-tmp/ir-tools/dataset/inputs
     io_backend:
@@ -30,27 +30,19 @@ network_g:
   bias: False
   LayerNorm_type: WithBias
   dual_pixel_task: False
-  scale: 4
+  scale: 1
 
 # path
 path:
-  pretrain_network_g: /root/autodl-tmp/ir-tools/pretrain/X-Restormer/sr_300k.pth
+  pretrain_network_g: /root/autodl-tmp/ir-tools/pretrain/xrestormer/derain_155k.pth
   strict_load_g: true
   resume_state: ~
+  results: /root/autodl-tmp/ir-tools/dataset/outputs
 # validation settings
 val:
   save_img: true
   suffix: ~
   pbar: true
-  metrics:
-    psnr: # metric name, can be arbitrary
-      type: calculate_psnr
-      crop_border: 4
-      test_y_channel: true
-    ssim:
-      type: calculate_ssim
-      crop_border: 4
-      test_y_channel: true
 
 # dist training settings
 dist_params:

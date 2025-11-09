@@ -1,0 +1,6 @@
+numpy
+scipy
+opencv-python
+torch
+torchvision
+basicsr>=1.4.2
