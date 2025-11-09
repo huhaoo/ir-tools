@@ -16,7 +16,7 @@ lqpwd=basepwd/"datasets/lq"
 metapwd=basepwd/"datasets/metadata"
 lqpwd.mkdir(parents=True, exist_ok=True); metapwd.mkdir(parents=True, exist_ok=True)
 
-dataset_size=10
+dataset_size=1024
 max_degs=3
 for i in tqdm(range(dataset_size)):
 	id=random.choice(imgs)

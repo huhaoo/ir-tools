@@ -22,7 +22,7 @@ from basicsr.data.degradations import random_add_gaussian_noise_pt, random_add_p
 from basicsr.utils.matlab_functions import imresize
 
 
-def lr(img, scale=0.25, keep_size=False):
+def lr(img, keep_size=False):
     """Resizes the image to 1/4 of its original size. 
     If `keep_size`, then resizes the image back."""
 
