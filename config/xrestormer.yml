@@ -10,7 +10,7 @@ datasets:
   test_1:
     name: .
     type: SingleImageDataset
-    dataroot_lq: /root/autodl-tmp/ir-tools/dataset/inputs
+    dataroot_lq: $in
     io_backend:
       type: disk
 # network structures
@@ -34,10 +34,10 @@ network_g:
 
 # path
 path:
-  pretrain_network_g: /root/autodl-tmp/ir-tools/pretrain/xrestormer/derain_155k.pth
+  pretrain_network_g: $model
   strict_load_g: true
   resume_state: ~
-  results: /root/autodl-tmp/ir-tools/dataset/outputs
+  results: $out
 # validation settings
 val:
   save_img: true

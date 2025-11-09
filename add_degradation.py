@@ -22,7 +22,7 @@ from basicsr.data.degradations import random_add_gaussian_noise_pt, random_add_p
 from basicsr.utils.matlab_functions import imresize
 
 
-def lr(img, keep_size=False):
+def lr(img, scale=0.25, keep_size=False):
     """Resizes the image to 1/4 of its original size. 
     If `keep_size`, then resizes the image back."""
 
@@ -128,12 +128,12 @@ def darken(img, darken_type: Optional[str] = None, arg=None):
     hsv = cv2.merge((h, s, v))
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
-def add_haze(img, idx, depth_dir=Path("dataset/depth").resolve(), A=None, beta=None):
+def add_haze(img, depth_pwd, A=None, beta=None):
     """Adds haze by atmospheric scattering model I(x) = J(x)t(x) + A(1-t(x)), where t(x) = exp(-beta d(x)). This code is adapted from that of [MiOIR](https://github.com/Xiangtaokong/MiOIR). Following [RESIDE](https://ieeexplore.ieee.org/document/8451944), A ~ U(0.7, 1.0), beta ~ U(0.6, 1.8)."""
 
     img = img.copy()
 
-    d = loadmat(depth_dir/idx/"predict_depth.mat")
+    d = loadmat(depth_pwd/"predict_depth.mat")
     d = d['data_obj']
     d = cv2.resize(d, (0, 0), fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
     d = d / d.max()
@@ -286,9 +286,8 @@ if __name__ == "__main__":
 
     img = cv2.imread(input_image_path)
 
-    img = resize_to_256x256(img)
     # img = add_motion_blur(img, severity=2)
     # img = add_defocus_blur(img, severity=1)
-    img = add_rain(img, value=80)
+    img = lr(img, keep_size=True)
 
     cv2.imwrite(output_image_path, img)
