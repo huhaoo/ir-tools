@@ -4,6 +4,7 @@ import json
 import random
 import cv2
 from tqdm import tqdm
+import shutil
 
 degenerations=["denoising","motion_deblurring","sr","deraining","dehazing"]
 
@@ -14,7 +15,8 @@ depthpwd=basepwd/"mio100/depth"
 
 lqpwd=basepwd/"datasets/lq"
 metapwd=basepwd/"datasets/metadata"
-lqpwd.mkdir(parents=True, exist_ok=True); metapwd.mkdir(parents=True, exist_ok=True)
+shutil.rmtree(lqpwd, ignore_errors=True); lqpwd.mkdir(parents=True, exist_ok=True)
+shutil.rmtree(metapwd, ignore_errors=True); metapwd.mkdir(parents=True, exist_ok=True)
 
 dataset_size=1024
 max_degs=3
@@ -29,6 +31,7 @@ for i in tqdm(range(dataset_size)):
 		elif d=='sr': img=lr(img,True)
 		elif d=='deraining': img=add_rain(img)
 		elif d=='dehazing': img=add_haze(img, depthpwd/id)
+	img=resize_to_multiple_of(img, 64)
 	cv2.imwrite(lqpwd/f"{i}.png", img)
 	metadata={
 		'source_id': id,

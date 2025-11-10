@@ -12,6 +12,7 @@ class tool:
 		self.pwd=Path("/root/autodl-tmp/ir-tools/")
 		self.valid_exts = ['.png','.jpg','.jpeg','.bmp']
 	def __str__(self): raise NotImplementedError
+	def __repr__(self): return str(self)
 	def apply(self, ipwd, opwd):
 		ipwd=Path(ipwd).resolve(); opwd=Path(opwd).resolve()
 		# iterate all files in ipwd
@@ -72,14 +73,14 @@ tools={
 	'deraining': [xrestormer('deraining')],
 	'dehazing': [xrestormer('dehazing')],
 }
+all_tools=[t for lst in tools.values() for t in lst]
 
 def apply(model, ipwd, opwd):
 	if type(model)=='str':
-		for tool_list in tools.values():
-			for t in tool_list:
-				if str(t)==model:
-					t.apply(ipwd, opwd)
-					return
+		for t in all_tools:
+			if str(t)==model:
+				t.apply(ipwd, opwd)
+				return
 		raise ValueError(f"unknown model: {model}")
 	else:
 		assert isinstance(model, tool), "model must be str or tool instance"

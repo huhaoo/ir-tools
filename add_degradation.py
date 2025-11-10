@@ -280,6 +280,16 @@ def resize_to_256x256(img):
     img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_CUBIC)
     return img
 
+def resize_to_multiple_of(img, n=8):
+    """Resizes the image to a multiple of n."""
+
+    img = img.copy()
+    h, w = img.shape[:2]
+    new_h = (h // n) * n
+    new_w = (w // n) * n
+    img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
+    return img
+
 if __name__ == "__main__":
     input_image_path = "/root/autodl-tmp/ir-tools/dataset/example.png"
     output_image_path = "/root/autodl-tmp/ir-tools/dataset/inputs/1.png"
