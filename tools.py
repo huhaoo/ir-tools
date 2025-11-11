@@ -26,7 +26,7 @@ class tool:
 		copwd=cpwd/'output'; copwd.mkdir(parents=True, exist_ok=True)
 		shutil.copy(ipath, cipwd/ipath.name)
 		self.apply(cipwd, copwd)
-		shutil.copy(copwd/opath.name, opath)
+		shutil.copy(copwd/ipath.name, opath)
 		shutil.rmtree(cpwd)
 
 def replace_yml(ipath, opath, replacements):
@@ -82,9 +82,24 @@ def apply(model, ipwd, opwd):
 				t.apply(ipwd, opwd)
 				return
 		raise ValueError(f"unknown model: {model}")
+	elif type(model) in [list, tuple]:
+		for t in model: apply(t, ipwd, opwd)
 	else:
 		assert isinstance(model, tool), "model must be str or tool instance"
 		model.apply(ipwd, opwd)
 
+def apply_single(model, ipath, opath):
+	if type(model)=='str':
+		for t in all_tools:
+			if str(t)==model:
+				t.apply_single(ipath, opath)
+				return
+		raise ValueError(f"unknown model: {model}")
+	elif type(model) in [list, tuple]:
+		for t in model: apply_single(t, ipath, opath)
+	else:
+		assert isinstance(model, tool), "model must be str or tool instance"
+		model.apply_single(ipath, opath)
+
 if __name__ == "__main__":
-	xrestormer('sr').apply('dataset/inputs', 'dataset/outputs')
+	xrestormer('sr').apply_single('dataset/example.png', 'dataset/output.png')
