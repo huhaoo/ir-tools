@@ -1,3 +1,4 @@
 pretrain/
 *.png
 *.pyc
+nohup.out

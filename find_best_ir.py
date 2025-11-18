@@ -47,7 +47,7 @@ def find_best_ir(imgs):
 		for j in tools.all_tools:
 			deals=[]
 			for k in range(len(enum)):
-				if len(enum[k])>i and j is enum[k][i]:
+				if len(enum[k])>i and (j is enum[k][i]):
 					deals.append(k)
 			if not len(deals): continue
 			tmpipwd.mkdir(parents=True, exist_ok=True)
@@ -66,7 +66,8 @@ def find_best_ir(imgs):
 			if score[0]>best_score[0]:
 				best_score=score
 				best_id=j
-		shutil.copy(tmppwd/f"{best_id}.png", opwd/f"{imgs[i]}.png")
+		metadatas[i]['best']=opwd/f"{imgs[i]}.png"
+		shutil.copy(tmppwd/f"{best_id}.png", metadatas[i]['best'])
 		metadatas[i]['best_pipeline']=[str(t) for t in enum[best_id]]
 		metadatas[i]['best_score']={'combined': best_score[0], **best_score[1]}
 		with open(metapwd/f"{imgs[i]}.json", 'w') as f:
