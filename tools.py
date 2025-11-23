@@ -52,7 +52,10 @@ class xrestormer(tool):
 			'deraining':'derain_155k.pth',
 			'dehazing':'dehaze_300k.pth',
 		}
+	def str_(self):
+		return f"xrestormer({self.task})"
 	def __str__(self):
+		return f"<xrestormer_{self.task}>".upper()
 		return f"xrestormer({self.task})"
 	def apply(self, ipwd, opwd):
 		ipwd=Path(ipwd).resolve(); opwd=Path(opwd).resolve()
