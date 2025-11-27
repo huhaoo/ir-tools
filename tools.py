@@ -38,6 +38,22 @@ def replace_yml(ipath, opath, replacements):
 	with open(opath, 'w') as f:
 		f.write(content)
 
+class mprnet(tool):
+	def __init__(self, task):
+		super().__init__()
+		self.codepwd=self.pwd/'ext'/'mprnet'
+		self.task={
+			'denoising':'Denoising',
+			'motion_deblurring':'Deblurring',
+			'deraining':'Deraining',
+		}[task]
+	def __str__(self): return f"<mprnet_{self.task}>".upper()
+	def apply(self, ipwd, opwd):
+		ipwd=Path(ipwd).resolve(); opwd=Path(opwd).resolve()
+		shutil.rmtree(opwd, ignore_errors=True); opwd.mkdir(parents=True, exist_ok=True)
+		cmd=f"conda run -n mprnet python demo.py --input_dir {ipwd} --result_dir {opwd} --task {self.task}"
+		subprocess.run(cmd, shell=True, check=True, cwd=self.codepwd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
 class xrestormer(tool):
 	def __init__(self, task):
 		super().__init__()
@@ -52,11 +68,8 @@ class xrestormer(tool):
 			'deraining':'derain_155k.pth',
 			'dehazing':'dehaze_300k.pth',
 		}
-	def str_(self):
-		return f"xrestormer({self.task})"
-	def __str__(self):
-		return f"<xrestormer_{self.task}>".upper()
-		return f"xrestormer({self.task})"
+	def str_(self): return f"xrestormer({self.task})"
+	def __str__(self): return f"<xrestormer_{self.task}>".upper()
 	def apply(self, ipwd, opwd):
 		ipwd=Path(ipwd).resolve(); opwd=Path(opwd).resolve()
 		shutil.rmtree(opwd, ignore_errors=True); opwd.mkdir(parents=True, exist_ok=True)
@@ -70,10 +83,10 @@ class xrestormer(tool):
 		(opwd/'xrestormer.yml').unlink()
 
 tools={
-	'denoising': [xrestormer('denoising')],
-	'motion_deblurring': [xrestormer('motion_deblurring')],
+	'denoising': [xrestormer('denoising'), mprnet('denoising')],
+	'motion_deblurring': [xrestormer('motion_deblurring'), mprnet('motion_deblurring')],
 	'sr': [xrestormer('sr')],
-	'deraining': [xrestormer('deraining')],
+	'deraining': [xrestormer('deraining'), mprnet('deraining')],
 	'dehazing': [xrestormer('dehazing')],
 }
 all_tools=[t for lst in tools.values() for t in lst]
@@ -92,7 +105,7 @@ def apply(model, ipwd, opwd):
 		model.apply(ipwd, opwd)
 
 def apply_single(model, ipath, opath):
-	if type(model)=='str':
+	if type(model)==str:
 		for t in all_tools:
 			if str(t)==model:
 				t.apply_single(ipath, opath)
@@ -105,4 +118,4 @@ def apply_single(model, ipath, opath):
 		model.apply_single(ipath, opath)
 
 if __name__ == "__main__":
-	xrestormer('sr').apply_single('dataset/example.png', 'dataset/output.png')
+	mprnet('denoising').apply('dataset','tmp')

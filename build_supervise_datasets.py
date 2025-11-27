@@ -18,12 +18,14 @@ tmppwd=basepwd/"datasets/tmp"
 tmpipwd=basepwd/"datasets/tmp/inputs"
 tmpopwd=basepwd/"datasets/tmp/outputs"
 
+print(f"Build supervise dataset at {superpwd}")
+shutil.rmtree(superpwd, ignore_errors=True)
 opwd.mkdir(parents=True, exist_ok=True); ometapwd.mkdir(parents=True, exist_ok=True)
 
 imetadata=list(imetapwd.glob("*.json"))
 
 # dataset_size=4
-dataset_size=2**13
+dataset_size=2**14
 metadatas=[]
 
 def random_choise_exclude(ex):
@@ -33,12 +35,13 @@ def random_choise_exclude(ex):
 	return x
 
 mx_iters=0
-for i in range(dataset_size):
+print("Building metadata...")
+for i in tqdm(range(dataset_size)):
 	with open(imetadata[i%len(imetadata)],"r") as f:
 		metadata=json.load(f)
 	rd=random.random()
 	if rd<0.1: ty='done'
-	elif rd<0.8: ty='apply'
+	elif rd<0.9: ty='apply'
 	else: ty='cancel'
 	metadata['type']=ty
 	if ty=='done':
@@ -64,7 +67,8 @@ for i in range(dataset_size):
 	# print(metadata)
 
 for i in range(mx_iters):
-	for j in tools.all_tools:
+	print(f"Level {i+1}/{mx_iters}...")
+	for j in tqdm(tools.all_tools):
 		deals=[]
 		for k in range(dataset_size):
 			if metadatas[k]['type']!='done' and len(metadatas[k]['history'])>i and str(j)==metadatas[k]['history'][i]:
@@ -76,6 +80,7 @@ for i in range(mx_iters):
 		for k in deals: shutil.copy(tmpopwd/f"{k}.png", metadatas[k]['now'])
 		shutil.rmtree(tmpipwd, ignore_errors=True); shutil.rmtree(tmpopwd, ignore_errors=True)
 shutil.rmtree(tmppwd, ignore_errors=True)
-for i in range(dataset_size):
+print("Saving metadata...")
+for i in tqdm(range(dataset_size)):
 	with open(ometapwd/f"{i}.json", 'w') as f:
 		json.dump(metadatas[i], f, indent=4)

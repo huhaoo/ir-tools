@@ -4,3 +4,7 @@
 [submodule "ext/restormer"]
 	path = ext/restormer
 	url = https://github.com/swz30/Restormer.git
+[submodule "ext/mprnet"]
+	path = ext/mprnet
+	url = https://github.com/swz30/MPRNet.git
+	ignore = all
