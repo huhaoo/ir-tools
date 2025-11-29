@@ -9,7 +9,7 @@ import shutil
 degenerations=["denoising","motion_deblurring","sr","deraining","dehazing"]
 
 imgs=[f"{i:03}" for i in range(1, 101)]
-basepwd=Path("/root/autodl-tmp").resolve()
+basepwd=Path("/root/shared-nvme").resolve()
 gtpwd=basepwd/"mio100/gt"
 depthpwd=basepwd/"mio100/depth"
 

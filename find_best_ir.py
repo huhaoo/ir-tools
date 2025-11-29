@@ -6,7 +6,7 @@ import cv2
 from eval import combined_metric
 from tqdm import tqdm
 
-basepwd=Path("/root/autodl-tmp").resolve()
+basepwd=Path("/root/shared-nvme").resolve()
 
 lqpwd=basepwd/"datasets/lq"
 metapwd=basepwd/"datasets/metadata"

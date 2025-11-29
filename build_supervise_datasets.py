@@ -7,7 +7,7 @@ from eval import combined_metric
 from tqdm import tqdm
 import random
 
-basepwd=Path("/root/autodl-tmp").resolve()
+basepwd=Path("/root/shared-nvme").resolve()
 
 imetapwd=basepwd/"datasets/metadata"
 superpwd=basepwd/"datasets/supervise"

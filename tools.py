@@ -9,7 +9,7 @@ def rand_str(length):
 
 class tool:
 	def __init__(self):
-		self.pwd=Path("/root/autodl-tmp/ir-tools/")
+		self.pwd=Path("/root/shared-nvme/ir-tools/")
 		self.valid_exts = ['.png','.jpg','.jpeg','.bmp']
 	def __str__(self): raise NotImplementedError
 	def __repr__(self): return str(self)
