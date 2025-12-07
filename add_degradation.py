@@ -291,8 +291,8 @@ def resize_to_multiple_of(img, n=8):
     return img
 
 if __name__ == "__main__":
-    input_image_path = "/root/shared-nvme/ir-tools/dataset/example.png"
-    output_image_path = "/root/shared-nvme/ir-tools/dataset/inputs/1.png"
+    input_image_path = "/root/shared-nvme/irtools/dataset/example.png"
+    output_image_path = "/root/shared-nvme/irtools/dataset/inputs/1.png"
 
     img = cv2.imread(input_image_path)
 

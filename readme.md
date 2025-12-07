@@ -1,0 +1,1 @@
+To support parallel, remove make_exp_dirs(opt) in **ALL** basicir

@@ -18,7 +18,7 @@ metapwd=basepwd/"datasets/metadata"
 shutil.rmtree(lqpwd, ignore_errors=True); lqpwd.mkdir(parents=True, exist_ok=True)
 shutil.rmtree(metapwd, ignore_errors=True); metapwd.mkdir(parents=True, exist_ok=True)
 
-dataset_size=1024
+dataset_size=2**12
 max_degs=3
 for i in tqdm(range(dataset_size)):
 	id=random.choice(imgs)

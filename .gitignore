@@ -2,3 +2,4 @@ pretrain/
 *.png
 *.pyc
 nohup.out
+log.txt

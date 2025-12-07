@@ -1,10 +1,12 @@
 import tools
+import torch
 import shutil
 from pathlib import Path
 import json
 import cv2
 from eval import combined_metric
 from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor
 
 basepwd=Path("/root/shared-nvme").resolve()
 
@@ -12,16 +14,22 @@ lqpwd=basepwd/"datasets/lq"
 metapwd=basepwd/"datasets/metadata"
 
 opwd=basepwd/"datasets/best"
-tmppwd=basepwd/"datasets/tmp"
-tmpipwd=basepwd/"datasets/tmp/inputs"
-tmpopwd=basepwd/"datasets/tmp/outputs"
 
 shutil.rmtree(opwd, ignore_errors=True); opwd.mkdir(parents=True, exist_ok=True)
 
 imgs=sorted((lqpwd).glob("*.png"))
 imgs=[p.name[:-4] for p in imgs]
 
-def find_best_ir(imgs):
+log_file=open('log.txt', 'w')
+def log(*args, **kwargs):
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] ", file=log_file, end="")
+    print(*args, **kwargs, file=log_file)
+    log_file.flush()
+
+def find_best_ir(imgs, cuda_id="0"):
+    tmppwd=basepwd/f"datasets/tmp_{cuda_id}"
+    tmpipwd=tmppwd/"inputs"
+    tmpopwd=tmppwd/"outputs"
     shutil.rmtree(tmppwd, ignore_errors=True); tmppwd.mkdir(parents=True, exist_ok=True)
     enum=[]
     results=[]
@@ -42,7 +50,7 @@ def find_best_ir(imgs):
                     search_perm(a[:x]+a[x+1:], t+[y])
         search_perm(metadatas[-1]["degradations"],[])
         mx_iters=max(mx_iters, len(metadatas[-1]["degradations"]))
-    # print(f"Total {len(enum)} pipelines to apply, max steps: {mx_iters}")
+    log(f"[cuda {cuda_id}] Total {len(enum)} pipelines to apply, max steps: {mx_iters}")
     for i in range(mx_iters):
         for j in tools.all_tools:
             deals=[]
@@ -50,12 +58,13 @@ def find_best_ir(imgs):
                 if len(enum[k])>i and (j is enum[k][i]):
                     deals.append(k)
             if not len(deals): continue
+            log(f"[cuda {cuda_id}] Step {i+1}/{mx_iters}, applying {j} on {len(deals)} images")
             tmpipwd.mkdir(parents=True, exist_ok=True)
             for k in deals: shutil.copy(tmppwd/f"{k}.png", tmpipwd/f"{k}.png")
-            j.apply(tmpipwd, tmpopwd)
+            j.apply(tmpipwd, tmpopwd, cuda_id=cuda_id)
             for k in deals: shutil.copy(tmpopwd/f"{k}.png", tmppwd/f"{k}.png")
             shutil.rmtree(tmpipwd, ignore_errors=True); shutil.rmtree(tmpopwd, ignore_errors=True)
-    # print("Evaluating results...")
+    log(f"[cuda {cuda_id}] Evaluating results for {len(imgs)} images")
     for i in range(len(imgs)):
         best_id=-1
         best_score=(-float('inf'), {})
@@ -74,10 +83,22 @@ def find_best_ir(imgs):
             json.dump(metadatas[i], f, indent=4)
     shutil.rmtree(tmppwd, ignore_errors=True)
 
-print("Available IR tools:")
-print(tools.tools)
+log("Available IR tools:")
+log(tools.tools)
 n=len(imgs)
-bs=128
-bn=(n-1)//bs+1
-for bi in tqdm(range(bn)):
-    find_best_ir(imgs[bi*bs:(bi+1)*bs])
+ncuda=torch.cuda.device_count()
+log(f"Total {n} images, using {ncuda} GPUs.")
+bs=1024
+bn=(n+bs-1)//bs
+# find_best_ir(imgs[:n], cuda_id="0,1")
+def run(args):
+    for i,batch in enumerate(args[0]):
+        log(f"[cuda {args[1]}] Step {i+1}/{len(args[0])}, processing batch of {len(batch)} images")
+        find_best_ir(batch, cuda_id=args[1])
+# for bi in tqdm(range(bn)):
+#     find_best_ir(imgs[bi*bs:(bi+1)*bs], cuda_id=str(bi))
+args=[[[],str(id)] for id in range(ncuda)]
+for bi in range(bn):
+    args[bi%ncuda][0].append(imgs[bi*bs:(bi+1)*bs])
+with ProcessPoolExecutor(max_workers=bn) as executor:
+    results = list(executor.map(run, args))
